@@ -5,12 +5,8 @@
 
 #include <kernel/tty.h>
 
-#if defined(__i386__)
-#include "../arch/i386/idt.h"
-#include "../arch/i386/pic.h"
-#include "../arch/i386/io_hid.h"
-
-#endif
+#include "aarch.h"
+#include "cmd.c"
 
 void kernel_early(void)
 {
@@ -19,16 +15,12 @@ void kernel_early(void)
 
 void kernel_main(void)
 {
-	printf("Hello, kernel World!\n");
+	printf("Welcome to Project Hades\n");
 
 #if defined(__i386__)
-	printf("idt_initialize\n");
 	idt_initialize();
 	pic_initialize();
 #endif
 
-	for (;;)
-	{
-		printf("%c\n", getchar());
-	}
+	terminal_run();
 }

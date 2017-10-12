@@ -14,7 +14,7 @@
 // This assumes that RTC is in UTC, which it typically isn't, but since
 // the timezone isn't known, just let some process adjust it after boot.
 //
-double clock_rtc_read() {
+unsigned clock_rtc_read() {
 
     int update = 1; // update in progress flag
     while(update) {
@@ -28,22 +28,23 @@ double clock_rtc_read() {
 
     // read the various RTC fields
     
-    outb(RTC_BASE, 0);
+    outb(RTC_BASE, 0x00);
     unsigned char sec = inb(RTC_DATA);
+    //printf("sec:%i ", sec);
 
-    outb(RTC_BASE, 2);
+    outb(RTC_BASE, 0x02);
     unsigned char min = inb(RTC_DATA);
 
-    outb(RTC_BASE, 4);
+    outb(RTC_BASE, 0x04);
     unsigned char hour = inb(RTC_DATA);
 
-    outb(RTC_BASE, 7); // day of month
+    outb(RTC_BASE, 0x07); // day of month
     unsigned char day = inb(RTC_DATA);
 
-    outb(RTC_BASE, 8);
+    outb(RTC_BASE, 0x08);
     unsigned char month = inb(RTC_DATA);
 
-    outb(RTC_BASE, 9); // two digits, we assume 2000-2099
+    outb(RTC_BASE, 0x09); // two digits, we assume 2000-2099
     unsigned char year = inb(RTC_DATA);
 
     // read RTC register B to figure out how to deal with the data
@@ -83,15 +84,15 @@ double clock_rtc_read() {
     // This will actually give bogus values if year is 2000 (or before that),
     // but for code written in 2007 that shouldn't matter that much...
     //
-    double fullyeardays = year * 365 + ((year-1)/4) + 1;
+    unsigned fullyeardays = year * 365 + ((year-1)/4) + 1;
 
     // Next get the number of (full) days for this year, using the lookup
     // table for months. RTC day and month count from 1. Adjust month.
     // Only adjust day if it's not leap year, or if leap day hasn't passed.
     //
-    static double daysbeforemonth[12] // for normal, non-leap year
+    static unsigned daysbeforemonth[12] // for normal, non-leap year
         = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
-    double thisyeardays = daysbeforemonth[month-1] + day
+    unsigned thisyeardays = daysbeforemonth[month-1] + day
         - (((year%4)==0 && month > 2) ? 0 : 1); // only if no leap day passed
 
     // Sum days before and during this year to get date, then adjust EPOCH
@@ -101,11 +102,11 @@ double clock_rtc_read() {
     //   date -d '2000-01-01 00:00:00 UTC' '+%s' -> 946684800
     // and dividing the result with 24*60*60 to get the number of days.
     //
-    double date = fullyeardays + thisyeardays + 10957;
+    unsigned date = fullyeardays + thisyeardays + 10957;
 
 
     // Finally build system time, unix format seconds since 1970-01-01 00:00
-    double time = sec + 60 * (min + 60 * (hour + 24 * date));
+    unsigned time = sec + 60 * (min + 60 * (hour + 24 * date));
 
     return time;
     

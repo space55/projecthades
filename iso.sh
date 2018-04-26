@@ -14,4 +14,4 @@ menuentry "myos" {
 	module /boot/myos.initrd
 }
 EOF
-grub-mkrescue -o myos.iso isodir
+grub2-mkrescue -o myos.iso isodir

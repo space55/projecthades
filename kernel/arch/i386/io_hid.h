@@ -6,5 +6,6 @@
 
 char getScancode();
 char getchar();
+char getcharRaw();
 
 #endif

@@ -1,5 +1,7 @@
 #include "io_hid.h"
 
+int shift = 0;
+
 const unsigned char keyboard_map[128] = {
     0, 27, '1', '2', '3', '4', '5', '6', '7', '8',    /* 9 */
     '9', '0', '-', '=', '\b',                         /* Backspace */
@@ -134,7 +136,16 @@ const unsigned char keyboard_map_shift[128] = {
 
 char getScancode()
 {
-  return inb(0x60);
+  char s = inb(0x60);
+  if (s == 42)
+  {
+    shift = 1;
+  }
+  else if (s == (char)(42 + 0x80))
+  {
+    shift = 0;
+  }
+  return s;
 }
 
 /*
@@ -153,10 +164,17 @@ char getchar()
 {
   do
   {
-    char c = getScancode();
-    if (c > 0)
+    char s = getScancode();
+    if (s > 0)
     {
-      return keyboard_map[c];
+      if (shift == 0)
+      {
+        return keyboard_map[s];
+      }
+      else
+      {
+        return keyboard_map_shift[s];
+      }
     }
   } while (1);
 }
@@ -168,5 +186,12 @@ char getcharRaw()
   {
     c = 0;
   }
-  return keyboard_map[c];
+  if (shift == 0)
+  {
+    return keyboard_map[c];
+  }
+  else
+  {
+    return keyboard_map_shift[c];
+  }
 }

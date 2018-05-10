@@ -38,5 +38,12 @@ int terminal_run()
 
 void type(int c)
 {
-	printf("%c", c);
+	if (c == 8)
+	{
+		printf("\b");
+	}
+	else
+	{
+		printf("%c", c);
+	}
 }

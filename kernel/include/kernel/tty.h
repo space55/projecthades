@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 
+void update_cursor(int x, int y);
 void terminal_initialize(void);
 void terminal_putchar(char c);
 void terminal_write(const char* data, size_t size);
